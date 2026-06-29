@@ -1,0 +1,845 @@
+\documentclass[compress,10pt,aspectratio=169]{beamer}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{centernot}
+\usepackage{graphicx}
+\usepackage{appendix}
+\usepackage{bm}
+\usepackage{bbm}
+\DeclareMathOperator*{\argmax}{arg\,max}
+\usetheme{CambridgeUS}
+\useinnertheme{circles}
+\usepackage{booktabs}
+\usepackage{pifont}
+\usepackage{tabularx}
+\usepackage{centernot}
+\usepackage[labelfont=bf, font=normalsize, justification=centering, belowskip=7pt, aboveskip=7pt]{caption}
+\usepackage[flushleft]{threeparttable}
+\usepackage{multirow}
+\newcolumntype{L}[1]{>{\raggedright\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+\newcolumntype{C}[1]{>{\centering\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+\newcolumntype{R}[1]{>{\raggedleft\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+
+%\setbeamersize{text margin left=10mm,text margin right=10mm}
+%\setbeamerfont{frametitle}{size=\large}
+
+%\definecolor{UBCblue}{rgb}{0.04706, 0.13725, 0.26667}
+
+
+
+
+%\setbeamertemplate{footline}[frame number]{}
+
+
+
+\newcommand\emphblue[1]{\textcolor{blue}{#1}}
+
+\AtBeginSubsection[]{
+  \begin{frame}[noframenumbering,plain]
+  \vfill
+  \centering
+  \begin{beamercolorbox}[sep=8pt,center,shadow=true,rounded=true]{title}
+    \usebeamerfont{title}\insertsubsectionhead\par%
+  \end{beamercolorbox}
+  \vfill
+  \end{frame}
+}
+
+
+
+\beamertemplatenavigationsymbolsempty
+
+
+
+
+\title[Signal Extraction in Hiring]{\LARGE{Signal Extraction in Hiring}\\ \Large{Evidence from Teacher Recruiting}}
+\date[June 2026]{June 2026}
+\author[Gianmarco Le\'on-Ciliotta (UPF)]{Matteo Bobba (TSE)\\ Tim Ederer (CMU)\\ Gianmarco Le\'on-Ciliotta (UPF)\\ Christopher Neilson (Yale)\\ Marco Nieddu (University of Cagliari)}
+
+
+\begin{document}
+
+{\setbeamertemplate{footline}{}
+\begin{frame}[noframenumbering,plain]
+\titlepage
+\end{frame}
+} %this removes the footline from title page
+
+\section{Signal Extraction in Hiring: Evidence from Teacher Recruiting}
+
+\begin{frame}{Motivation}
+    \begin{itemize}
+        \item Hiring is one of the most consequential decisions organizations make
+        \smallskip
+        \begin{itemize}
+            \item[$\Rightarrow$] In the \emphblue{public sector}, arguably \emph{the} central personnel margin: rigid wages, rare dismissals, long careers
+            \smallskip
+            \item[$\Rightarrow$] Quality of public services (student learning, health, justice) is partly determined at the \emphblue{recruitment stage}
+        \end{itemize}
+        \medskip
+        \item Recruitment decisions are made by \emphblue{line managers} who infer productivity from noisy signals (resumes, tests, interviews)
+        \begin{itemize}
+        \smallskip
+            \item[$\Rightarrow$] Discretionary screening often goes wrong, both in the private and the public sector
+        \end{itemize}
+        \medskip
+        \item Why does discretion fail to identify productive workers despite an information advantage?
+        \begin{itemize}
+        \smallskip
+        \item[$\Rightarrow$] \emphblue{Information frictions}: managers cannot tell good from bad applicants apart
+        \medskip
+        \item[$\Rightarrow$] \emphblue{Agency frictions}: managers maximize something other than productivity
+        \end{itemize}
+        \medskip
+        \item Separating them requires observing what managers \emphblue{know}, \emphblue{learn}, and \emphblue{choose}, benchmarked against an objective measure of productivity --- \emphblue{such data rarely exist}
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{This Paper}
+    \begin{itemize}
+        \item Combine \emphblue{rich data} on recruitment of \emphblue{permanent teachers} in Per\'u with an empirical model of discretionary hiring and learning
+        \begin{itemize}
+        \smallskip
+        \item[$\Rightarrow$] Schools conduct \emphblue{interviews} and have \emphblue{significant leeway} in the hiring decision
+        \medskip
+        \item[$\Rightarrow$] Observe \emphblue{candidate ranking} before and after interviews + link to student outcomes
+        \medskip
+        \item[$\Rightarrow$] Benchmark choices against selection-corrected \emphblue{teacher value-added}
+        \end{itemize}
+        \bigskip
+        \item Structural model of signal extraction in hiring
+        \begin{itemize}
+        \smallskip
+            \item[$\Rightarrow$] Schools form \emphblue{priors} about \emphblue{teacher value-added} from observables and applications
+            \medskip
+            \item[$\Rightarrow$] \emphblue{Update beliefs} about value-added after observing \emphblue{signal} during interview
+            \medskip
+            \item[$\Rightarrow$] Allow for \emphblue{other objectives} of the schools and \emphblue{learning about unobserved traits}  of the applicants
+        \end{itemize}
+    \end{itemize}
+\end{frame}
+
+
+
+\begin{frame}{Preview of (Preliminary) Results}
+
+    \begin{itemize}
+    \item Substantial heterogeneity in \emphblue{preferences for} and \emphblue{learning about value added}
+    \begin{itemize}
+    \smallskip
+        \item[$\Rightarrow$] Interview reveals \emphblue{little information}: increase in VA of \emphblue{0.01$\sigma$} relative to pre-interview
+    \end{itemize}
+    \bigskip
+        \item Decomposition exercise
+       \begin{itemize}
+       \smallskip
+    \item[$\Rightarrow$] Eliminating \emphblue{information frictions}: \emphblue{0.09$\sigma$} increase in value-added vis-a-vis status quo
+    \medskip
+    \item[$\Rightarrow$] \emphblue{Aligning school preferences} on teacher value added: \emphblue{0.07$\sigma$} increase in value-added
+    \medskip
+    \item[$\Rightarrow$] Eliminating \emphblue{both}: \emphblue{0.19$\sigma$} increase in value-added
+\end{itemize}
+        \bigskip
+        \item Counterfactual screening policy: provide \emphblue{value-added estimates} to schools
+        \begin{itemize}
+            \smallskip
+            \item[$\Rightarrow$] Achieve same gain in VA as interview + avoid bias against female candidates
+        \end{itemize}
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Literature}
+    \begin{itemize}
+        \item Employer learning and information in labor markets
+        \begin{itemize}
+       \smallskip
+        \item[$\Rightarrow$] {\footnotesize \textcolor{gray}{Jovanovic (1979), Farber and Gibbons (1996), Altonji and Pierret (2001), Lange (2007), Pallais (2014)}}
+        \medskip
+            \item[$\Rightarrow$] This paper: move learning \emphblue{inside the recruitment process} as a pre-hire signal-extraction event
+        \end{itemize}
+    \bigskip
+        \item Personnel economics of hiring and worker selection in the public sector
+\begin{itemize}
+\smallskip
+    \item[$\Rightarrow$] {\footnotesize \textcolor{gray}{Hoffman, Kahn and Li (2018), Autor and Scarborough (2008), Estrada (2019), Colonnelli et al. (2020), Weaver (2021)}}
+    \medskip
+    \item[$\Rightarrow$] This paper: \emphblue{decompose why} discretionary screening underperforms (information vs.\ agency)
+    \end{itemize}
+    \bigskip
+    \item Sorting, value-added and inequality in teachers' labor markets
+    \begin{itemize}
+\smallskip
+    \item[$\Rightarrow$] {\footnotesize \textcolor{gray}{Rivkin et al. (2005), Chetty et al. (2014b), Bobba et al. (2022), Bates et al. (2022), Biasi et al. (2021)}}
+        \medskip
+    \item[$\Rightarrow$] This paper: \emphblue{demand side} of teacher allocation + role of principals in shaping inequality
+\end{itemize}
+    \end{itemize}
+\end{frame}
+
+\subsection{Context, Data, and Teacher Value Added}
+
+
+\begin{frame}{Allocation Mechanism for Permanent Teachers in Peru}
+    \begin{itemize}
+        \item Application stage
+        \begin{itemize}
+        \smallskip
+            \item[$\Rightarrow$] Applicants take a standardized test evaluating pedagogical skills and curricular knowledge
+            \medskip
+            \item[$\Rightarrow$] Applicants scoring above 60\% are eligible to apply for \emphblue{permanent positions}
+            \medskip
+            \item[$\Rightarrow$] Submit rank-ordered lists (ROLs) expressing their preferences over schools
+        \end{itemize}
+        \bigskip
+        \item \emphblue{Shortlists} in each school of 10 applicants maximum
+        \begin{itemize}
+            \smallskip
+            \item[$\Rightarrow$] Applicants ranked based on \emphblue{test scores} and assigned \emphblue{sequentially} to \emphblue{top three} ranked schools
+            \bigskip
+        \end{itemize}
+        \item School-based evaluation
+        \begin{itemize}
+        \smallskip
+            \item[$\Rightarrow$] School attributes points based on CV, interview, classroom evaluation
+            \medskip
+            \item[$\Rightarrow$] \emphblue{Final ranking} based on test score + points attributed by school
+            %\medskip
+            %\item[$\Rightarrow$] Offers are made sequentially to \emphblue{top ranked teachers}
+        \end{itemize}
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{School-based Evaluation Matters}
+\begin{figure}[t!]
+
+    \begin{minipage}[b]{0.4\linewidth}
+\centering\includegraphics[width=1\linewidth]{Figures/density_cumscore.png}
+        \captionof*{figure}{\footnotesize \textbf{a) Teachers' Score}}
+    \end{minipage}
+    \begin{minipage}[b]
+{0.4\linewidth}
+\centering
+\includegraphics[width=1\linewidth]{Figures/rev_s0_prev_by_stage.png}
+        \captionof*{figure}{\footnotesize \textbf{b) Probability of a Change in Top-Rank}}
+    \end{minipage}
+
+    \end{figure}
+\begin{itemize}
+        \item[$\Rightarrow$] 50\% probability of \emphblue{change in top-ranked teachers} from score-based evaluation
+    \end{itemize}
+\end{frame}
+
+
+\begin{frame}{Data}
+    \begin{itemize}
+        \item Comprehensive data on the \emphblue{centralized recruitment drive} over 2015-2019
+        \begin{itemize}
+        \smallskip
+            \item[$\Rightarrow$] Universe of \emphblue{applicants} and \emphblue{job postings} + submitted applicants \emphblue{ROLs}
+            \medskip
+            \item[$\Rightarrow$] Set of \emphblue{shortlisted candidates} in each school
+            \medskip
+            \item[$\Rightarrow$] Candidate ranking at \emphblue{each stage} of decentralized evaluation
+        \end{itemize}
+        \bigskip
+        \item Additional linkable sources
+        \begin{itemize}
+        \smallskip
+            \item[$\Rightarrow$] Matched \emphblue{teacher-student dataset} with student demographics and test scores
+            \medskip
+        \item[$\Rightarrow$] Records of employment in public teaching sector over 2012-2021
+        \medskip
+            \item[$\Rightarrow$] School census: locality characteristics, school infrastructure, etc...
+
+        \end{itemize}
+    \end{itemize}
+\end{frame}
+
+
+
+
+
+
+\begin{frame}{Measuring Teacher Effectiveness}
+    \begin{itemize}
+        \item Potential outcome (4th grade test score) of student $\ell$ if taught by teacher $j\in\{1,...,J\}$
+        $$
+        Y_{\ell j}=\alpha_j+X_{\ell}'\beta_j+Z_{\ell}'\gamma+\epsilon_{\ell j},
+        $$
+        \begin{itemize}
+        \item[$\Rightarrow$] $\alpha_j$: average effect of teacher $j$ (ATE)
+        \medskip
+        \item[$\Rightarrow$] $\beta_j$: returns to $X_{\ell}$ when exposed to teacher $j$ (match effect)
+        \medskip
+        \item[$\Rightarrow$] $X_{\ell}$: lagged score (2nd grade) and gender
+        \medskip
+        \item[$\Rightarrow$] $Z_{\ell}$: lagged score, lagged score$^2$, gender, ethnicity, age at student, classroom, school level
+        \end{itemize}
+        \bigskip
+        \item Assuming \emphblue{selection on observables} might be strong despite rich covariates
+        %\begin{itemize}
+        %\smallskip
+            %\item[$\Rightarrow$] Denote $S_\ell \in\{1,...,J\}$ as the teacher assigned to student $\ell$
+            %\medskip
+            %\item[$\Rightarrow$] $\mathbb{E}[\epsilon_{\ell j}|X_{\ell},Z_{\ell},S_{\ell}]$ might capture selection on \emphblue{unobserved ability} or \emphblue{match effects}
+        %\end{itemize}
+    \end{itemize}
+\end{frame}
+
+
+\begin{frame}{Selection on Unobservables}
+    \begin{itemize}
+        \item Use observed ROLs $R_j$ to correct for \emphblue{selection on unobserved match quality}
+        \begin{itemize}
+        \smallskip
+            \item[$\Rightarrow$] Multinomial logit control function approach à la Dubbin \& McFadden (1984)
+        \end{itemize}
+        \bigskip
+        \item Specify utility that teacher $j$ gets from being matched with school $i$
+        $$
+        U_{ij} =u(z_j,x_i,d_{ij},\tau_j)  + \eta_{ij},
+        $$
+        \begin{itemize}
+            \item[$\Rightarrow$] $x_i$: amenity index, locality size and remoteness, student demographics/performance,...
+            \medskip
+            \item[$\Rightarrow$] $z_j$: gender, ethnicity, experience, test scores
+            \medskip
+            \item[$\Rightarrow$] $d_{ij}$: geographic distance between teacher and school (\emphblue{excluded from outcome equation})
+            \medskip
+            \item[$\Rightarrow$] $\tau_j$: K-dimensional unobserved preference type
+        \end{itemize}
+    \end{itemize}
+\end{frame}
+
+
+
+\begin{frame}{Selection on Unobservables}
+    \begin{itemize}
+        \item Assume applicants \emphblue{rank schools truthfully} and $\eta_{ij}$ EVT1 distributed
+        \begin{itemize}
+        \smallskip
+        \item[$\Rightarrow$] Likelihood of observing $R_j$ conditional on $(z_j,d_j,\tau_j)$
+        $$
+        \mathcal{L}(R_j|z_j,d_j,\tau_j)=\prod_{i=1}^N\left(\frac{\exp\{u(x_i,z_{j},d_{ij},\tau_j)\}}{\sum_{l: iR_{j}l}\exp\{u(x_l,z_{j},d_{lj},\tau_j)\}}\right)^{1\{iR_{j}0\}},
+        $$
+        \end{itemize}
+        \bigskip
+        \item Two step approach
+        \begin{itemize}
+        \smallskip
+            \item[$\Rightarrow$] Estimate $u(\cdot)$ using \emphblue{EM algorithm} and construct \emphblue{control function terms}
+            \medskip
+            \item[$\Rightarrow$] Get \emphblue{selection-corrected} teacher value-added estimates $(\hat{\alpha}_j,\hat{\beta}_j)$
+        \end{itemize}
+    \end{itemize}
+\end{frame}
+
+
+\begin{frame}{Prior Distribution}
+    \begin{itemize}
+        \item Assume $\theta_j=(\alpha_j,\beta_j)$'s are drawn i.i.d from \emphblue{normal prior}
+        $$
+        \theta_j|z_j,\tau_j,\hat{\Omega}_j \sim \mathcal{N}(\mu(z_j,\tau_j),\Sigma_{\theta})
+        $$
+        \begin{itemize}
+            \item[$\Rightarrow$] $\hat{\Omega}_j$: estimate of asymptotic variance-covariance of $\hat{\theta}_j$
+            \medskip
+            \item[$\Rightarrow$] Allow \emphblue{prior to depend on observables $z_j$ and preference types $\tau_j$}
+        \end{itemize}
+        \bigskip
+        \item Identify and estimate by MLE $\mu(\cdot)$ and $\Sigma_{\theta}$ from OLS estimates $\hat{\theta}_j$
+        $$
+        \hat{\theta}_j|z_j,\tau_j,\hat{\Omega}_j \sim \mathcal{N}(\mu(z_j,\tau_j),\Sigma_{\theta}+\hat{\Omega}_j)
+        $$
+    \end{itemize}
+\end{frame}
+
+
+
+
+\begin{frame}{Estimates of the Prior Mean}
+\begin{table}[t!]
+\centering
+\label{tva_estimates}
+\begin{threeparttable}
+\scriptsize
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{L{1.5cm} *{8}{C{1cm}}}
+  \hline
+  \hline
+ & Baseline ($\tau=1$) & Baseline ($\tau=2$) & Baseline ($\tau=3$) & $\times$ Female & $\times$ Test score & $\times$ Quechua & $\times$ Exp Pub $>0$ & $\times$ Exp Priv $>0$ \\
+ & (1) & (2) & (3) & (4) & (5) & (6) & (7) & (8) \\
+\hline
+ATE & -0.036 (0.051) & 0.005  (0.071) & -0.122 (0.056) & 0.057  (0.031) & 0.096  (0.024) & 0.007  (0.050) & 0.028  (0.037) & 0.065 (0.030) \\
+Lagged score & 0.525  (0.026) & 0.593  (0.033) & 0.539  (0.028) & -0.032 (0.016) & 0.008  (0.012) & -0.009 (0.022) & -0.012 (0.018) & 0.019 (0.015) \\
+Female & -0.057 (0.032) & -0.046 (0.044) & -0.059 (0.036) & -0.045 (0.021) & -0.001 (0.014) & 0.013  (0.035) & 0.010  (0.022) & -0.003 (0.020) \\
+   \hline
+   \hline
+\end{tabular}
+\begin{tablenotes}
+\scriptsize \item
+\end{tablenotes}
+    \end{threeparttable}
+\end{table}
+\begin{itemize}
+    \item Female, high-scoring, and experienced teachers have larger average effectiveness (ATE)
+    \begin{itemize}
+    \smallskip
+        \item[$\Rightarrow$] Observables explain little of the variation in match effects; unobserved types predict the ATE
+    \end{itemize}
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}{Evidence of Misalignment Between School Preferences and TVA}
+\begin{table}[t!]
+\centering
+\begin{threeparttable}
+\footnotesize
+\renewcommand{\arraystretch}{1.4}
+\begin{tabular}{L{3.2cm} *{4}{C{2cm}}}
+  \hline
+  \hline
+  & Random selection & \multicolumn{2}{c}{$\Delta$ with top ranked candidate}\\
+ \cmidrule{3-4}&  & School: Pre-interview & \textcolor{red}{Prior TVA} \\
+ & (1) & (2) & \textcolor{red}{(3)}  \\
+\hline
+Female & 0.802 & 0.004  & \textcolor{red}{0.065} \\
+Test score (std.) & 1.653 & 0.068 & \textcolor{red}{0.158}  \\
+Quechua & 0.089 & 0.009 & \textcolor{red}{0.009}\\
+Exp public $>$ 0 & 0.900 & 0.046 & \textcolor{red}{0.032} \\
+Exp private $>$ 0 & 0.712 & -0.027 & \textcolor{red}{0.104} \\
+Internal candidate & 0.112 & 0.014 & \textcolor{red}{0.006} \\
+\textcolor{red}{Shrunken VA} & \textcolor{red}{0.272} & \textcolor{red}{0.010} & \textcolor{red}{0.015} \\
+   \hline
+   \hline
+\end{tabular}
+\begin{tablenotes}
+\scriptsize \item
+\end{tablenotes}
+    \end{threeparttable}
+\end{table}
+\begin{itemize}
+    \item Pre-interview ranking \emphblue{poorly aligned} with a value-added--optimal ranking (Prior TVA)
+    \begin{itemize}
+    \smallskip
+        \item[$\Rightarrow$] Too little weight on test scores, women and private experience; too much on internal candidates
+        \medskip
+        \item[$\Rightarrow$] Pre-interview ranking selects no higher VA than the prior ($0.010$ vs.\ $0.015\sigma$): \emphblue{not superior info} $\to$ agency frictions
+    \end{itemize}
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}{Estimates of the Prior Variance}
+\begin{table}[t!]
+\centering
+\label{tva_variance}
+\begin{threeparttable}
+\footnotesize
+\renewcommand{\arraystretch}{1.3}
+\setlength{\tabcolsep}{1pt}
+\begin{tabular}{L{3cm} *{4}{C{1.5cm}}}
+  \hline
+  \hline
+  & & \multicolumn{2}{c}{Correlation}\\
+\cmidrule{3-4} & SD & Lagged Score & Female   \\
+ & (1) & (2) & (3) \\
+\hline
+ATE & 0.383 (0.010) & -0.075 (0.053) & -0.066 (0.107) \\
+Lagged Score & 0.151 (0.007) & & 0.076 (0.119) \\
+Female & 0.108 (0.015) \\
+   \hline
+   \hline
+\end{tabular}
+\begin{tablenotes}
+\scriptsize \item
+\end{tablenotes}
+    \end{threeparttable}
+\end{table}
+\begin{itemize}
+    \item \emphblue{Large residual variance} in average effectiveness ($0.38\sigma$) and match effects ($0.15\sigma$ / $0.11\sigma$)
+    \begin{itemize}
+    \smallskip
+        \item[$\Rightarrow$] Substantial room for learning in the school-based evaluation
+    \end{itemize}
+\end{itemize}
+\end{frame}
+
+
+
+
+\begin{frame}{Empirical Bayes Shrinkage}
+    \begin{itemize}
+        \item Construct shrunken estimates of $\theta_j$
+        \begin{itemize}
+        \smallskip
+        \item[$\Rightarrow$] \emphblue{Coincides with posterior mean} of $\theta_j$ if schools could observe $\hat{\theta}_j$ and apply Bayes rule
+        \medskip
+       \item[$\Rightarrow$] Gives MSE optimal predictions of teacher effectiveness
+        \medskip
+        \item[$\Rightarrow$] Decision rules based on shrunken estimates tend to perform better
+        \end{itemize}
+        \bigskip
+        \item Denote shrunken estimates as $\hat{\theta}_j^*$
+        $$
+\hat{\theta}_j^*=\sum_{k=1}^KP(\tau_j=k|z_j,d_j,R_j)(\hat{\Omega}_j^{-1}+\hat{\Sigma}_{\theta}^{-1})^{-1}(\hat{\Omega}_j^{-1}\hat{\theta}_j + \hat{\Sigma}_{\theta}^{-1}\hat{\mu}(z_j,\tau_j=k))
+$$
+    \end{itemize}
+\end{frame}
+
+
+
+
+
+
+\begin{frame}{Evidence of Learning about Effectiveness}
+\begin{table}[t!]
+\centering
+\begin{threeparttable}
+\footnotesize
+\renewcommand{\arraystretch}{1.4}
+\begin{tabular}{L{3.2cm} *{4}{C{2cm}}}
+  \hline
+  \hline
+  & Random selection & \multicolumn{2}{c}{$\Delta$ with top ranked candidate}\\
+ \cmidrule{3-4}&  & School: Pre-interview & \textcolor{red}{School: Post-interview} \\
+ & (1) & (2) & \textcolor{red}{(3)}  \\
+\hline
+Female & 0.802 & 0.004 & \textcolor{red}{-0.025}  \\
+Test score (std.) & 1.653 & 0.068 & \textcolor{red}{0.026}  \\
+Quechua & 0.089 & 0.009 & \textcolor{red}{0.004} \\
+Exp public $>$ 0 & 0.900 & 0.046 & \textcolor{red}{0.040} \\
+Exp private $>$ 0 & 0.712 & -0.027 & \textcolor{red}{-0.015} \\
+Internal candidate & 0.112 & 0.014 & \textcolor{red}{0.043} \\
+\textcolor{red}{Shrunken VA} & \textcolor{red}{0.272} &  \textcolor{red}{0.010} & \textcolor{red}{0.022} \\
+   \hline
+   \hline
+\end{tabular}
+\begin{tablenotes}
+\scriptsize \item
+\end{tablenotes}
+    \end{threeparttable}
+\end{table}
+\begin{itemize}
+    \item Post-interview ranking \emphblue{less selected on observables} --- consistent with Bayesian learning
+    \begin{itemize}
+    \smallskip
+       \item[$\Rightarrow$] But more likely male and internal: rankings also shift on dimensions unrelated to VA
+       \medskip
+       \item[$\Rightarrow$] Post-interview top candidate has \emphblue{higher value-added} ($0.022$ vs.\ $0.010\sigma$): interview is \emphblue{informative about TVA}
+    \end{itemize}
+\end{itemize}
+\end{frame}
+
+\subsection{A Model of Signal Extraction in Hiring}
+
+
+
+\begin{frame}{Beliefs Updating}
+    \begin{itemize}
+        \item Schools face \emphblue{common prior} on $q_{ij}=\alpha_j+\beta_j'X_i$ before the interview
+        $$
+        q_{ij}|z_j,d_j,R_j, X_i \sim \mathcal{N}(\mu_q(z_j,d_j,R_j, X_i),\sigma^2_q( X_i))
+        $$
+        \smallskip
+        \item Schools \emphblue{receive a signal} $\nu_{ij}|\theta_j,X_i \sim \mathcal{N}(q_{ij},\exp(\gamma_i))$ at interview and \emphblue{update their beliefs}
+$$
+\mathbb{E}[q_{ij}|z_j,d_j,R_j, X_i, \nu_{ij}]=\mu_q(z_j,d_j,R_j)+\frac{\sigma_{q}^2( X_i)}{\sigma_{q}^2( X_i)+\exp(\gamma_i)}(\nu_{ij}+b(z_j)-\mu_q(z_j,d_j,R_j)).
+$$
+\begin{itemize}
+    \item[$\Rightarrow$] $\gamma_i \sim \mathcal{N}(\mu_{\gamma},\sigma_{\gamma}^2)$: heterogeneous ability to extract informative signals
+    \medskip
+    \item[$\Rightarrow$] $b(z_j)$: biased interpretation of signal depending on observable type
+\end{itemize}
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{School Preferences}
+    \begin{itemize}
+        \item Expected value of school $i$ from hiring teacher $j$ in stage $g=1,2$
+$$
+V_{ij}^g= \delta_i\mathbb{E}[q_{ij}+\varphi\eta_{ij}|\mathcal{S}^g_{ij}]+v(z_j)+\xi_{ij}+\varepsilon^g_{ij},
+$$
+\begin{itemize}
+    \item[$\Rightarrow$] $\mathcal{S}^1_{ij}=(z_j,d_j,R_j, X_i)$: information set before interview
+    \medskip
+    \item[$\Rightarrow$] $\mathcal{S}^2_{ij}=(z_j,d_j,R_j, X_i,\nu_{ij})$: information set after interview
+    \bigskip
+    \end{itemize}
+    \item Capture \emphblue{heterogeneous preferences} flexibly
+    \begin{itemize}
+    \smallskip
+    \item[$\Rightarrow$] $\delta_i \sim \log \mathcal{N}(\mu_{\delta},\sigma_{\delta}^2)$: alignment with objective of maximizing value-added
+    \medskip
+    \item[$\Rightarrow$] $v(z_j)$: preference for observable types (i.e. gender discrimination)
+    \medskip
+    \item[$\Rightarrow$] $\xi_{ij}\sim \mathcal{N}(0,\sigma_{\xi}^2)$: preference for fixed unobserved traits
+    \medskip
+    \item[$\Rightarrow$] $\varepsilon^g_{ij}$: EVT1 transitory preference shock i.i.d. across $i,j,g$
+\end{itemize}
+    \end{itemize}
+\end{frame}
+
+
+\begin{frame}{Identification}
+    \begin{itemize}
+        \item Assumptions:
+        \begin{itemize}
+        \smallskip
+        \item[$\Rightarrow$] Schools rank applicants in shortlist $\mathcal{J}_i$ according to $V_{ij}^g$ (\emphblue{no strategic motives} of schools)\medskip
+            \item[$\Rightarrow$] $(\varepsilon^g_{ij},\xi_{ij},\delta_i,\gamma_i,\nu_{ij})$ orthogonal to $\mathcal{J}_i$ (\emphblue{no private info} of applicants about school preferences)
+        \end{itemize}
+        \bigskip
+        \item Candidate ranking \emphblue{before interview} identifies distribution of $\delta_i$ and $v(z_j)$
+            \bigskip
+        \item Change in candidate ranking \emphblue{after interview} identifies distribution of $\gamma_i,\xi_{ij}$ and $b(z_j)$
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Estimation}
+    \begin{itemize}
+        \item Likelihood of observing ranking $R_i^g$ in stage $g=1,2$
+$$
+\mathcal{L}(R_i^g|\delta_i,\gamma_i,\bm{\xi_i},\bm{\mathcal{S}_i^g})=\prod_{j=1}^{|\mathcal{J}_i|}\left(\frac{\exp\{\delta_i\mathbb{E}[q_{ij}+\varphi\eta_{ij}|\mathcal{S}^g_{ij}]+v_i(z_j)+\xi_{ij}\}}{\sum_{k: jR^g_{i}k}\exp\{\delta_i\mathbb{E}[q_{ik}+\varphi\eta_{ik}|\mathcal{S}^g_{ik}]+v_i(z_k)+\xi_{ik}\}}\right)
+$$
+\medskip
+\item Maximize simulated joint likelihood
+$$
+\int\prod_{g=1}^2\mathcal{L}(R_i^g|\delta_i,\gamma_i,\bm{\xi_i},\bm{\mathcal{S}_i^g})dF(\delta_i,\gamma_i,\bm{\xi_i},\bm{\nu_{i}}|\bm{\hat{\theta}})
+$$
+\begin{itemize}
+    \item[$\Rightarrow$] Draw from distribution of $\nu_{ij}$ \emphblue{conditional on value-added estimates} $\hat{\theta}_j$
+    \medskip
+    \item[$\Rightarrow$] Additional variation to identify learning parameters
+\end{itemize}
+    \end{itemize}
+\end{frame}
+
+\subsection{Estimates and Counterfactuals}
+
+
+\begin{frame}{School Preferences}
+ \begin{table}[t!]
+\label{pref_principals}
+\centering
+\begin{threeparttable}
+\footnotesize
+\renewcommand{\arraystretch}{1.3}
+\setlength{\tabcolsep}{1pt}
+\begin{tabular}{L{5cm} *{5}{C{1.5cm}}}
+  \hline
+  \hline
+ & \multicolumn{1}{c}{Mean} & \multicolumn{1}{c}{SD} \\
+ & (1) & (2)  \\
+\hline
+Value-added weight $(\delta_i)$ & 0.847 (0.123) & 0.709 (0.128)  \\
+Female & -0.030 (0.049) & - \\
+Unobserved traits $(\xi_{ij})$ & - & 1.270 (0.023) \\
+   \hline
+   \hline
+\end{tabular}
+    \end{threeparttable}
+\end{table}
+\begin{itemize}
+\medskip
+    \item Strong alternative motives beyond TVA with \emphblue{substantial heterogeneity}
+    \begin{itemize}
+    \smallskip
+        \item[$\Rightarrow$] Rank correlation between TVA and preferences post-interview: 0.46 (full info benchmark: 0.62)
+        \medskip
+        \item[$\Rightarrow$] No evidence of gender discrimination
+    \end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Learning}
+ \begin{table}[t!]
+\label{learning_principals}
+\centering
+\begin{threeparttable}
+\footnotesize
+\renewcommand{\arraystretch}{1.3}
+\setlength{\tabcolsep}{1pt}
+\begin{tabular}{L{4cm} *{5}{C{1.5cm}}}
+  \hline
+  \hline
+ & \multicolumn{1}{c}{Mean} & \multicolumn{1}{c}{SD} \\
+ & (1) & (2)  \\
+\hline
+Signal precision $(\gamma_i)$ & 1.421 (0.386) & 0.649 (0.259)  \\
+Bias Female & -3.184 (1.066)  & - \\
+   \hline
+   \hline
+\end{tabular}
+    \end{threeparttable}
+\end{table}
+    \begin{itemize}\medskip
+    \item Interview reveals little information about quality on average but substantial heterogeneity
+    \begin{itemize}
+    \smallskip
+        \item[$\Rightarrow$] Strong \emphblue{heterogeneity in ability to extract signals} about TVA
+        \medskip
+        \item[$\Rightarrow$] \emphblue{Biased learning} against female candidates
+    \end{itemize}
+    \end{itemize}
+\end{frame}
+
+
+\begin{frame}{Learning}
+\centering\includegraphics[width=80mm]{Figures/learning_weights.png}
+\begin{itemize}
+    \item Most schools \emphblue{weight TVA signal} less than 0.1 vis-a-vis the prior
+    \begin{itemize}
+    \smallskip
+        \item[$\Rightarrow$] But again large heterogeneity in those weights
+    \end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Decomposing Frictions}
+    \begin{itemize}
+    \item Simulate how hiring frictions affect \emphblue{value-added of top-ranked teacher}
+\begin{itemize}
+\smallskip
+    \item[$\Rightarrow$] \emphblue{No information frictions}: schools observe value-added
+    \medskip
+    \item[$\Rightarrow$] \emphblue{No agency frictions}: schools aligned with maximizing value-added
+\end{itemize}
+\bigskip
+\item Implementation
+\begin{itemize}
+\smallskip
+    \item[$\Rightarrow$] Draw value-added $(\theta_j)_j$ from posterior conditional on $(z_j,d_j,R_j,\hat{\theta}_j)$
+    \medskip
+    \item[$\Rightarrow$] Draw $(\delta_i,\gamma_i)_i$ from posterior \emphblue{conditional on $R_i^g$}
+    \medskip
+    \item[$\Rightarrow$] Draw $(\xi_{ij},\varepsilon^g_{ij})_{ij}$ and signal $\nu_{ij}$ conditional on drawn $\theta_j$
+    \medskip
+    \item[$\Rightarrow$] Construct rankings pre and post-interview from $V^g_{ij}$
+\end{itemize}
+\end{itemize}
+\end{frame}
+
+
+
+\begin{frame}{Decomposing Frictions}
+\begin{table}[t!]
+\centering
+\begin{threeparttable}
+\footnotesize
+\renewcommand{\arraystretch}{1.4}
+\begin{tabular}{L{3cm} *{5}{C{1.5cm}}}
+  \hline
+  \hline
+  & All Applicants & \multicolumn{4}{c}{$\Delta$ with top ranked candidate post-interview}\\
+ \cmidrule{3-6}&  & Status-quo & No info frictions & No agency frictions & No info + agency frictions \\
+ & (1) & (2) & (3) & (4) & (5) \\
+\hline
+Test Score (std.) & -0.049 & 0.036 & 0.032 & 0.206 & 0.030  \\
+\textcolor{red}{Value-added} & \textcolor{red}{-0.177} &  \textcolor{red}{0.015} & \textcolor{red}{0.107} & \textcolor{red}{0.087} & \textcolor{red}{0.214} \\
+   \hline
+   \hline
+\end{tabular}
+\begin{tablenotes}
+\scriptsize \item
+\end{tablenotes}
+    \end{threeparttable}
+\end{table}
+\begin{itemize}
+        \item \emphblue{No info frictions} increase value-added of selected candidates by \emphblue{0.11$\sigma$}
+        \medskip
+    \item \emphblue{No agency frictions} increase value-added of selected candidates by \emphblue{0.09$\sigma$}
+        \medskip
+    \item Removing \emphblue{both frictions} yields gain of \emphblue{0.21$\sigma$}
+    %\medskip
+    %\item Evidence that both frictions magnify each other
+\end{itemize}
+
+\end{frame}
+
+
+
+\begin{frame}{Policy Experiment}
+\begin{itemize}
+    \item Can we \emphblue{design better screening policies} to mitigate frictions?
+    \begin{itemize}
+    \smallskip
+        \item[$\Rightarrow$] Provide schools with \emphblue{more accurate information} about candidates' effectiveness as teachers
+        \medskip
+        \item[$\Rightarrow$] \emphblue{Incentivize schools} to seek effective teachers and avoid biases
+    \end{itemize}
+    \bigskip
+    \item Policy experiment
+    \begin{itemize}
+    \smallskip
+        \item[$\Rightarrow$] Eliminate interview and instead \emphblue{provide value-added estimates} to schools
+        \medskip
+        \item[$\Rightarrow$] Reduces information frictions while avoiding biased learning
+    \end{itemize}
+    \bigskip
+    \item Implementation
+    \begin{itemize}
+    \smallskip
+        \item[$\Rightarrow$] Posterior beliefs about $q_{ij}$ conditional on $\hat{\theta}_j$ coincides with shrunken estimates
+        \medskip
+        \item[$\Rightarrow$] \emphblue{Replace prior with shrunken estimates} and construct $V^1_{ij}$
+    \end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Policy Experiment}
+\begin{table}[t!]
+\centering
+\begin{threeparttable}
+\footnotesize
+\renewcommand{\arraystretch}{1.4}
+\begin{tabular}{L{3cm} *{5}{C{2cm}}}
+  \hline
+  \hline
+  & All Applicants & \multicolumn{2}{c}{$\Delta$ with top ranked candidate}\\
+ \cmidrule{3-4}&  & Status-quo post-interview & Counterfactual  \\
+ & (1) & (2) & (3) \\
+\hline
+Test Score (std.) & -0.049 & 0.036 & 0.030\\
+Female & 0.795 & -0.023 & 0.005\\
+\textcolor{red}{Value-added} & \textcolor{red}{-0.177} &  \textcolor{red}{0.015} & \textcolor{red}{0.018}  \\
+   \hline
+   \hline
+\end{tabular}
+\begin{tablenotes}
+\scriptsize \item
+\end{tablenotes}
+    \end{threeparttable}
+\end{table}
+\begin{itemize}
+    \item Achieves slightly higher value-added gains and \emphblue{avoids gender discrimination}
+\end{itemize}
+\end{frame}
+
+\subsection{}
+
+\begin{frame}{Conclusion}
+    \begin{itemize}
+        \item Leverage \emphblue{rich data + structural model} to study teacher recruiting in Peru
+        \begin{itemize}
+        \smallskip
+            \item[$\Rightarrow$] Schools form priors about teachers' value added and update beliefs after interview
+            \medskip
+            \item[$\Rightarrow$] Candidate ranking before and after interview separately identify preferences from learning
+        \end{itemize}
+        \bigskip
+        \item Quantify effect of frictions and \emphblue{evaluate counterfactual policy}
+        \begin{itemize}
+        \smallskip
+            \item[$\Rightarrow$] Estimates reveal significant heterogeneity in preferences and little learning through interview
+            \medskip
+            \item[$\Rightarrow$] Without frictions schools would select teachers with 0.19$\sigma$ higher value-added
+            \medskip
+            \item[$\Rightarrow$] Eliminating interview and give info on value-added enhances efficiency and avoids biases
+        \end{itemize}
+    \end{itemize}
+\end{frame}
+
+\end{document}
