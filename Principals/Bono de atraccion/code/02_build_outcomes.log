@@ -1,0 +1,453 @@
+
+  ___  ____  ____  ____  ____ ®
+ /__    /   ____/   /   ____/      StataNow 19.5
+___/   /   /___/   /   /___/       SE—Standard Edition
+
+ Statistics and Data Science       Copyright 1985-2025 StataCorp LLC
+                                   StataCorp
+                                   4905 Lakeway Drive
+                                   College Station, Texas 77845 USA
+                                   800-782-8272        https://www.stata.com
+                                   979-696-4600        service@stata.com
+
+Stata license: Unlimited-user network, expiring  3 Jun 2027
+Serial number: 401909316333
+  Licensed to: Gianmarco Leon-Ciliotta
+               Universitat Pompeu Fabra
+
+Notes:
+      1. Stata is running in batch mode.
+      2. Unicode is supported; see help unicode_advice.
+      3. Maximum number of variables is set to 5,000 but can be increased; see
+          help set_maxvar.
+
+
+Running /Users/u90397/Documents/Stata/ado/personal/profile.do ...
+
+. do 02_build_outcomes.do 
+
+. *==============================================================================*
+. * BONO DE ATRACCION - RD ANALYSIS
+. * 02_build_outcomes.do
+. * Constructs teacher-year outcomes from the NEXUS payroll (annual Nov/Dec
+. * extractions, 2015-2021) for the RD sample of concurso winners:
+. *   - acceptance: appears as NOMBRADO in the payroll the year after the concurso
+. *   - retention: still NOMBRADO in t+2, t+3, ... (any school / same school)
+. *   - career: pay scale (escala) progression, director positions
+. *==============================================================================*
+. version 19
+
+. clear all
+
+. set more off
+
+. 
+. global tp      "/Users/u90397/Dropbox/research projects/Teachers Peru/Data"
+
+. global nexus   "$tp/nexus/clean"
+
+. global proj    "/Users/u90397/Dropbox/research projects/Claude/Principals/Bono de
+>  atraccion"
+
+. global data    "$proj/data"
+
+. global logs    "$proj/logs"
+
+. 
+. capture log close
+
+. log using "$logs/02_build_outcomes.log", replace text
+-----------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  /Users/u90397/Dropbox/research projects/Claude/Principals/Bono de atra
+> ccion/logs/02_build_outcomes.log
+  log type:  text
+ opened on:  16 Jul 2026, 12:25:47
+
+. 
+. *------------------------------------------------------------------------------*
+. * 1. RD sample DNIs (with assigned school for same-school outcomes)
+. *------------------------------------------------------------------------------*
+. use "$data/rd_base_winners.dta", clear
+
+. keep documento concurso cod_mod cod_mod_ganador
+
+. * Normalize assigned-school code to 7 digits (codigo modular)
+. gen cm_assigned = ustrregexra(cod_mod_ganador, "[^0-9]", "")
+(1 missing value generated)
+
+. replace cm_assigned = ustrregexra(cod_mod, "[^0-9]", "") if cm_assigned==""
+(1 real change made)
+
+. replace cm_assigned = string(real(cm_assigned), "%07.0f") if real(cm_assigned)<.
+(0 real changes made)
+
+. keep documento concurso cm_assigned
+
+. tempfile rdids
+
+. save `rdids'
+file /var/folders/9d/c454lkvd2ybc2hztbpb8p7g80000gp/T//S_40573.000001 saved as
+    .dta format
+
+. 
+. *------------------------------------------------------------------------------*
+. * 2. NEXUS payroll rows for these teachers, 2015-2021
+. *------------------------------------------------------------------------------*
+. use numdocum y situacion codcatrem descargo cod_mod using "$nexus/nexus_digedd_20
+> 15_2021.dta", clear
+
+. drop if numdocum==""
+(44,771 observations deleted)
+
+. gen documento = ustrregexra(numdocum, "[^0-9]", "")
+(4 missing values generated)
+
+. replace documento = string(real(documento), "%08.0f") if real(documento)<.
+(1,388 real changes made)
+
+. drop if documento==""
+(4 observations deleted)
+
+. * keep only RD-sample teachers (joinby duplicates over concursos as intended)
+. joinby documento using `rdids'
+
+. 
+. gen cm_nexus = ustrregexra(cod_mod, "[^0-9]", "")
+(1 missing value generated)
+
+. replace cm_nexus = string(real(cm_nexus), "%07.0f") if real(cm_nexus)<.
+(119 real changes made)
+
+. 
+. gen byte nombrado   = situacion=="NOMBRADO"
+
+. gen byte contratado = situacion=="CONTRATADO"
+
+. gen byte designado  = situacion=="DESIGNADO"
+
+. gen byte samesch    = (cm_nexus==cm_assigned & cm_assigned!="") * nombrado
+
+. gen byte director   = strpos(descargo,"DIRECT")>0
+
+. gen escala = real(codcatrem)
+(2,099 missing values generated)
+
+. replace escala = . if escala<1 | escala>8
+(0 real changes made)
+
+. 
+. collapse (max) nombrado contratado designado samesch director escala, ///
+>     by(documento concurso y)
+
+. 
+. *------------------------------------------------------------------------------*
+. * 3. Reshape to one row per winner x concurso, outcomes by relative year
+. *------------------------------------------------------------------------------*
+. gen k = y - concurso
+
+. keep if k>=0 & k<=6
+(44,226 observations deleted)
+
+. drop y
+
+. reshape wide nombrado contratado designado samesch director escala, ///
+>     i(documento concurso) j(k)
+(j = 0 1 2 3 4 5 6)
+
+Data                               Long   ->   Wide
+-----------------------------------------------------------------------------
+Number of observations          158,513   ->   33,315      
+Number of variables                   9   ->   44          
+j variable (7 values)                 k   ->   (dropped)
+xij variables:
+                               nombrado   ->   nombrado0 nombrado1 ... nombrado6
+                             contratado   ->   contratado0 contratado1 ... contrata
+> do6
+                              designado   ->   designado0 designado1 ... designado6
+                                samesch   ->   samesch0 samesch1 ... samesch6
+                               director   ->   director0 director1 ... director6
+                                 escala   ->   escala0 escala1 ... escala6
+-----------------------------------------------------------------------------
+
+. 
+. tempfile outcomes
+
+. save `outcomes'
+file /var/folders/9d/c454lkvd2ybc2hztbpb8p7g80000gp/T//S_40573.000002 saved as
+    .dta format
+
+. 
+. *------------------------------------------------------------------------------*
+. * 4. Merge back to the RD base; absent from payroll = 0
+. *------------------------------------------------------------------------------*
+. use "$data/rd_base_winners.dta", clear
+
+. merge 1:1 documento concurso using `outcomes'
+(variable documento was str8, now str10 to accommodate using data's values)
+
+    Result                      Number of obs
+    -----------------------------------------
+    Not matched                            68
+        from master                        68  (_merge==1)
+        from using                          0  (_merge==2)
+
+    Matched                            33,315  (_merge==3)
+    -----------------------------------------
+
+. tab concurso _merge
+
+           | Matching result from
+           |         merge
+  concurso | Master on  Matched ( |     Total
+-----------+----------------------+----------
+      2015 |         2      8,135 |     8,137 
+      2017 |        25     10,734 |    10,759 
+      2018 |        27      9,948 |     9,975 
+      2019 |        14      4,498 |     4,512 
+-----------+----------------------+----------
+     Total |        68     33,315 |    33,383 
+
+. drop _merge
+
+. 
+. * k horizons observable per cohort given payroll through 2021
+. * 2015: k=1..6 | 2017: k=1..4 | 2018: k=1..3 | 2019: k=1..2
+. forvalues k=0/6 {
+  2.     gen byte obs_k`k' = (concurso + `k' <= 2021)
+  3.     foreach v in nombrado contratado designado samesch director {
+  4.         capture confirm variable `v'`k'
+  5.         if !_rc {
+  6.             replace `v'`k' = 0 if `v'`k'==. & obs_k`k'==1
+  7.             replace `v'`k' = . if obs_k`k'==0
+  8.         }
+  9.     }
+ 10.     capture confirm variable escala`k'
+ 11.     if !_rc replace escala`k' = . if obs_k`k'==0
+ 12. }
+(4,470 real changes made)
+(0 real changes made)
+(4,470 real changes made)
+(0 real changes made)
+(4,470 real changes made)
+(0 real changes made)
+(4,470 real changes made)
+(0 real changes made)
+(4,470 real changes made)
+(0 real changes made)
+(0 real changes made)
+(272 real changes made)
+(0 real changes made)
+(272 real changes made)
+(0 real changes made)
+(272 real changes made)
+(0 real changes made)
+(272 real changes made)
+(0 real changes made)
+(272 real changes made)
+(0 real changes made)
+(0 real changes made)
+(257 real changes made)
+(0 real changes made)
+(257 real changes made)
+(0 real changes made)
+(257 real changes made)
+(0 real changes made)
+(257 real changes made)
+(0 real changes made)
+(257 real changes made)
+(0 real changes made)
+(0 real changes made)
+(246 real changes made)
+(0 real changes made)
+(246 real changes made)
+(0 real changes made)
+(246 real changes made)
+(0 real changes made)
+(246 real changes made)
+(0 real changes made)
+(246 real changes made)
+(0 real changes made)
+(0 real changes made)
+(199 real changes made)
+(0 real changes made)
+(199 real changes made)
+(0 real changes made)
+(199 real changes made)
+(0 real changes made)
+(199 real changes made)
+(0 real changes made)
+(199 real changes made)
+(0 real changes made)
+(0 real changes made)
+(106 real changes made)
+(0 real changes made)
+(106 real changes made)
+(0 real changes made)
+(106 real changes made)
+(0 real changes made)
+(106 real changes made)
+(0 real changes made)
+(106 real changes made)
+(0 real changes made)
+(0 real changes made)
+(127 real changes made)
+(0 real changes made)
+(127 real changes made)
+(0 real changes made)
+(127 real changes made)
+(0 real changes made)
+(127 real changes made)
+(0 real changes made)
+(127 real changes made)
+(0 real changes made)
+(0 real changes made)
+
+. 
+. * Headline outcomes
+. gen byte accept      = nombrado1
+
+. gen byte retain2     = nombrado2
+
+. gen byte retain3     = nombrado3
+(4,512 missing values generated)
+
+. gen byte retain4     = nombrado4
+(14,487 missing values generated)
+
+. label var accept  "Nombrado in public payroll, year t+1"
+
+. label var retain2 "Nombrado, t+2"
+
+. label var retain3 "Nombrado, t+3"
+
+. label var retain4 "Nombrado, t+4"
+
+. 
+. * Career progression: promoted beyond entry scale by 2021 (needs >=1 ascenso)
+. gen escala_2021 = .
+(33,383 missing values generated)
+
+. forvalues k=0/6 {
+  2.     replace escala_2021 = escala`k' if concurso + `k' == 2021
+  3. }
+(0 real changes made)
+(0 real changes made)
+(4,489 real changes made)
+(9,905 real changes made)
+(10,656 real changes made)
+(0 real changes made)
+(8,009 real changes made)
+
+. * Promoted = at escala>=2 in 2021; teachers absent from the 2021 payroll count as
+>  0
+. gen byte promoted_2021 = (escala_2021>=2 & escala_2021<.)
+
+. gen byte director_ever = 0
+
+. forvalues k=1/6 {
+  2.     replace director_ever = 1 if director`k'==1 & obs_k`k'==1
+  3. }
+(3,870 real changes made)
+(811 real changes made)
+(283 real changes made)
+(156 real changes made)
+(104 real changes made)
+(60 real changes made)
+
+. 
+. compress
+  variable escala0 was float now byte
+  variable escala1 was float now byte
+  variable escala2 was float now byte
+  variable escala3 was float now byte
+  variable escala4 was float now byte
+  variable escala5 was float now byte
+  variable escala6 was float now byte
+  variable escala_2021 was float now byte
+  variable documento was str10 now str8
+  (867,958 bytes saved)
+
+. save "$data/rd_analysis.dta", replace
+file /Users/u90397/Dropbox/research projects/Claude/Principals/Bono de
+    atraccion/data/rd_analysis.dta saved
+
+. 
+. * Quick summary: outcome means by bono status and cohort
+. foreach v in accept retain2 retain3 retain4 {
+  2.     di as res _n "=== `v' ==="
+  3.     tab concurso bono if `v'<., sum(`v') nofreq means
+  4. }
+
+=== accept ===
+
+               Means of Nombrado in public payroll, year t+1
+
+           |     On bono de
+           |      atraccion
+           |  beneficiary list
+  concurso |         0          1 |     Total
+-----------+----------------------+----------
+      2015 | .98196872  .98408586 | .98267175
+      2017 | .98545048  .99418444 | .98838182
+      2018 | .98732458  .99402628 | .98957393
+      2019 | .98050231   .9986541 |  .9864805
+-----------+----------------------+----------
+     Total | .98448462  .99228492 | .98708924
+
+=== retain2 ===
+
+                          Means of Nombrado, t+2
+
+           |     On bono de
+           |      atraccion
+           |  beneficiary list
+  concurso |         0          1 |     Total
+-----------+----------------------+----------
+      2015 | .98472861   .9903775 |  .9866044
+      2017 | .98656967  .99252285 | .98856771
+      2018 | .98687189  .99313023 | .98897243
+      2019 | .98017184  .99730821 |  .9858156
+-----------+----------------------+----------
+     Total | .98533909  .99282318 | .98783812
+
+=== retain3 ===
+
+                          Means of Nombrado, t+3
+
+           |     On bono de
+           |      atraccion
+           |  beneficiary list
+  concurso |         0          1 |     Total
+-----------+----------------------+----------
+      2015 | .98417663  .98852702 | .98562124
+      2017 | .98587017  .99252285 | .98810298
+      2018 |  .9862683  .99223417 | .98827068
+-----------+----------------------+----------
+     Total | .98552837  .99130525 | .98746147
+
+=== retain4 ===
+
+                          Means of Nombrado, t+4
+
+           |     On bono de
+           |      atraccion
+           |  beneficiary list
+  concurso |         0          1 |     Total
+-----------+----------------------+----------
+      2015 |  .9825207  .98667654 |  .9839007
+      2017 | .98517068  .99030739 | .98689469
+-----------+----------------------+----------
+     Total | .98402607  .98875337 | .98560542
+
+. 
+. log close
+      name:  <unnamed>
+       log:  /Users/u90397/Dropbox/research projects/Claude/Principals/Bono de atra
+> ccion/logs/02_build_outcomes.log
+  log type:  text
+ closed on:  16 Jul 2026, 12:25:57
+-----------------------------------------------------------------------------------
+
+. 
+end of do-file

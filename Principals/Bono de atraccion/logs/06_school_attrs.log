@@ -1,0 +1,315 @@
+-----------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  /Users/u90397/Dropbox/research projects/Claude/Principals/Bono de atra
+> ccion/logs/06_school_attrs.log
+  log type:  text
+ opened on:  16 Jul 2026, 13:51:30
+
+. 
+. *------------------------------------------------------------------------------*
+. * 1. Winner-level plaza attributes from the concurso plaza database
+. *------------------------------------------------------------------------------*
+. use documento concurso ganador ruralidad bilingue frontera vraem cod_mod ///
+>     using "$conc/plazas_nombramiento.dta", clear
+
+. keep if ganador==1
+(112,427 observations deleted)
+
+. decode ruralidad, gen(rur_s)
+
+. gen byte rural_full = inlist(rur_s,"RURAL 1","RURAL 2","RURAL 3") if rur_s!=""
+
+. gen byte rural_deg  = 0 if rur_s=="URBANO"
+(17,042 missing values generated)
+
+. replace  rural_deg  = 1 if rur_s=="RURAL 1"
+(6,698 real changes made)
+
+. replace  rural_deg  = 2 if rur_s=="RURAL 2"
+(6,108 real changes made)
+
+. replace  rural_deg  = 3 if rur_s=="RURAL 3"
+(4,236 real changes made)
+
+. decode bilingue, gen(b_s)
+
+. decode frontera, gen(f_s)
+
+. decode vraem,    gen(v_s)
+
+. gen byte bilingue_d = b_s=="SI"
+
+. gen byte frontera_d = f_s=="SI"
+
+. gen byte vraem_d    = v_s=="SI"
+
+. label var rural_full "Assigned school rural (plaza DB, all cohorts)"
+
+. label var rural_deg  "Rurality degree of assigned school (0=urban .. 3)"
+
+. 
+. replace documento = ustrregexra(documento, "[^0-9]", "")
+(0 real changes made)
+
+. replace documento = string(real(documento), "%08.0f") if real(documento)<.
+(11 real changes made)
+
+. drop if documento==""
+(0 observations deleted)
+
+. duplicates drop documento concurso, force
+
+Duplicates in terms of documento concurso
+
+(0 observations are duplicates)
+
+. keep documento concurso rural_full rural_deg bilingue_d frontera_d vraem_d
+
+. tempfile attrs
+
+. save `attrs'
+file /var/folders/9d/c454lkvd2ybc2hztbpb8p7g80000gp/T//S_43643.000001 saved as
+    .dta format
+
+. 
+. *------------------------------------------------------------------------------*
+. * 2. School-level rurality lookup (mode across all plazas of the school)
+. *------------------------------------------------------------------------------*
+. use cod_mod ruralidad concurso using "$conc/plazas_nombramiento.dta", clear
+
+. decode ruralidad, gen(rur_s)
+
+. drop if rur_s=="" | cod_mod==""
+(0 observations deleted)
+
+. gen cm = ustrregexra(cod_mod, "[^0-9]", "")
+
+. replace cm = string(real(cm), "%07.0f") if real(cm)<.
+(0 real changes made)
+
+. gen byte rural_sch = inlist(rur_s,"RURAL 1","RURAL 2","RURAL 3")
+
+. * latest classification per school; break remaining ties towards rural
+. gsort cm -concurso -rural_sch
+
+. collapse (first) rural_sch, by(cm)
+
+. count
+  34,389
+
+. tempfile schoolrur
+
+. save `schoolrur'
+file /var/folders/9d/c454lkvd2ybc2hztbpb8p7g80000gp/T//S_43643.000002 saved as
+    .dta format
+
+. 
+. *------------------------------------------------------------------------------*
+. * 3. Outcome: nombrado in a rural school at t+k (from NEXUS)
+. *------------------------------------------------------------------------------*
+. use "$data/rd_analysis.dta", clear
+
+. keep documento concurso
+
+. duplicates drop
+
+Duplicates in terms of all variables
+
+(0 observations are duplicates)
+
+. tempfile rdids
+
+. save `rdids'
+file /var/folders/9d/c454lkvd2ybc2hztbpb8p7g80000gp/T//S_43643.000003 saved as
+    .dta format
+
+. 
+. use numdocum y situacion cod_mod using "$nexus/nexus_digedd_2015_2021.dta", clear
+
+. keep if situacion=="NOMBRADO"
+(1,424,346 observations deleted)
+
+. drop if numdocum==""
+(26 observations deleted)
+
+. gen documento = ustrregexra(numdocum, "[^0-9]", "")
+(3 missing values generated)
+
+. replace documento = string(real(documento), "%08.0f") if real(documento)<.
+(581 real changes made)
+
+. drop if documento==""
+(3 observations deleted)
+
+. gen cm = ustrregexra(cod_mod, "[^0-9]", "")
+(4 missing values generated)
+
+. replace cm = string(real(cm), "%07.0f") if real(cm)<.
+(5,364 real changes made)
+
+. joinby documento using `rdids'
+
+. merge m:1 cm using `schoolrur', keep(master match)
+
+    Result                      Number of obs
+    -----------------------------------------
+    Not matched                         2,807
+        from master                     2,807  (_merge==1)
+        from using                          0  (_merge==2)
+
+    Matched                           135,620  (_merge==3)
+    -----------------------------------------
+
+. gen byte rural_now = rural_sch==1 & _merge==3
+
+. drop _merge
+
+. * teacher-year: in any rural school as nombrado (max across plazas)
+. collapse (max) rural_now, by(documento concurso y)
+
+. gen k = y - concurso
+
+. keep if k>=1 & k<=6
+(8,965 observations deleted)
+
+. drop y
+
+. rename rural_now inrural
+
+. reshape wide inrural, i(documento concurso) j(k)
+(j = 1 2 3 4 5 6)
+
+Data                               Long   ->   Wide
+-----------------------------------------------------------------------------
+Number of observations          129,042   ->   33,104      
+Number of variables                   4   ->   8           
+j variable (6 values)                 k   ->   (dropped)
+xij variables:
+                                inrural   ->   inrural1 inrural2 ... inrural6
+-----------------------------------------------------------------------------
+
+. tempfile ruralout
+
+. save `ruralout'
+file /var/folders/9d/c454lkvd2ybc2hztbpb8p7g80000gp/T//S_43643.000004 saved as
+    .dta format
+
+. 
+. *------------------------------------------------------------------------------*
+. * 4. Merge everything into the analysis file
+. *------------------------------------------------------------------------------*
+. use "$data/rd_analysis.dta", clear
+
+. capture drop rural_full rural_deg bilingue_d frontera_d vraem_d inrural*
+
+. merge 1:1 documento concurso using `attrs', keep(master match)
+(variable concurso was int, now float to accommodate using data's values)
+(variable documento was str8, now str9 to accommodate using data's values)
+
+    Result                      Number of obs
+    -----------------------------------------
+    Not matched                             1
+        from master                         1  (_merge==1)
+        from using                          0  (_merge==2)
+
+    Matched                            33,382  (_merge==3)
+    -----------------------------------------
+
+. di "=== attrs merge ==="
+=== attrs merge ===
+
+. tab concurso _merge
+
+           | Matching result from
+           |         merge
+  concurso | Master on  Matched ( |     Total
+-----------+----------------------+----------
+      2015 |         0      8,137 |     8,137 
+      2017 |         1     10,758 |    10,759 
+      2018 |         0      9,975 |     9,975 
+      2019 |         0      4,512 |     4,512 
+-----------+----------------------+----------
+     Total |         1     33,382 |    33,383 
+
+. drop _merge
+
+. merge 1:1 documento concurso using `ruralout', keep(master match)
+(variable documento was str9, now str10 to accommodate using data's values)
+
+    Result                      Number of obs
+    -----------------------------------------
+    Not matched                           279
+        from master                       279  (_merge==1)
+        from using                          0  (_merge==2)
+
+    Matched                            33,104  (_merge==3)
+    -----------------------------------------
+
+. drop _merge
+
+. 
+. * Winners never nombrado in year t+k get 0 (consistent with other outcomes),
+. * respecting the payroll horizon
+. forvalues k=1/6 {
+  2.     capture confirm variable inrural`k'
+  3.     if _rc gen inrural`k' = .
+  4.     replace inrural`k' = 0 if inrural`k'==. & (concurso + `k' <= 2021)
+  5.     replace inrural`k' = . if concurso + `k' > 2021
+  6. }
+(431 real changes made)
+(0 real changes made)
+(406 real changes made)
+(0 real changes made)
+(362 real changes made)
+(0 real changes made)
+(272 real changes made)
+(0 real changes made)
+(139 real changes made)
+(0 real changes made)
+(155 real changes made)
+(0 real changes made)
+
+. 
+. * Validation: new rurality vs old etapa_desc measure where both exist
+. tab rural_assigned rural_full, missing
+
+  Assigned | Assigned school rural (plaza DB,
+ school is |           all cohorts)
+     rural |         0          1          . |     Total
+-----------+---------------------------------+----------
+         0 |    10,289          0          0 |    10,289 
+         1 |         0     10,444          0 |    10,444 
+         . |     6,410      6,239          1 |    12,650 
+-----------+---------------------------------+----------
+     Total |    16,699     16,683          1 |    33,383 
+
+. tab concurso, sum(rural_full)
+
+            |  Summary of Assigned school rural
+            |       (plaza DB, all cohorts)
+   concurso |        Mean   Std. dev.       Freq.
+------------+------------------------------------
+       2015 |   .53754455   .49861905       8,137
+       2017 |   .51106154   .49990086      10,758
+       2018 |    .4958396   .50000775       9,975
+       2019 |    .4133422   .49248775       4,512
+------------+------------------------------------
+      Total |   .49976035   .50000743      33,382
+
+. 
+. compress
+  variable concurso was float now int
+  variable documento was str10 now str8
+  (133,532 bytes saved)
+
+. save "$data/rd_analysis.dta", replace
+file /Users/u90397/Dropbox/research projects/Claude/Principals/Bono de
+    atraccion/data/rd_analysis.dta saved
+
+. log close
+      name:  <unnamed>
+       log:  /Users/u90397/Dropbox/research projects/Claude/Principals/Bono de atra
+> ccion/logs/06_school_attrs.log
+  log type:  text
+ closed on:  16 Jul 2026, 13:51:37
+-----------------------------------------------------------------------------------
