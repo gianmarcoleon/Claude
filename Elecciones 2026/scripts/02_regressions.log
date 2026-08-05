@@ -1,0 +1,168 @@
+
+  ___  ____  ____  ____  ____ ®
+ /__    /   ____/   /   ____/      StataNow 19.5
+___/   /   /___/   /   /___/       SE—Standard Edition
+
+ Statistics and Data Science       Copyright 1985-2025 StataCorp LLC
+                                   StataCorp
+                                   4905 Lakeway Drive
+                                   College Station, Texas 77845 USA
+                                   800-782-8272        https://www.stata.com
+                                   979-696-4600        service@stata.com
+
+Stata license: Unlimited-user network, expiring  3 Jun 2027
+Serial number: 401909316333
+  Licensed to: Gianmarco Leon-Ciliotta
+               Universitat Pompeu Fabra
+
+Notes:
+      1. Stata is running in batch mode.
+      2. Unicode is supported; see help unicode_advice.
+      3. Maximum number of variables is set to 5,000 but can be increased; see
+          help set_maxvar.
+
+
+Running /Users/u90397/Documents/Stata/ado/personal/profile.do ...
+
+. do 02_regressions.do 
+
+. * ============================================================
+. * Project: Elecciones 2026 - late/next-day mesa opening effects
+. * Author:  Gianmarco + Claude
+. * Input:   outputs/mesas_analysis.csv (from 01_build_dataset.py)
+. * Output:  outputs/results.csv (one row per spec x outcome)
+. *          outputs/mesas_analysis.dta
+. * ============================================================
+. version 19
+
+. clear all
+
+. set more off
+
+. 
+. global root   "/Users/u90397/Dropbox/research projects/Claude/Elecciones 2026"
+
+. global out    "$root/outputs"
+
+. 
+. import delimited "$out/mesas_analysis.csv", clear encoding(utf-8) case(preserve)
+(31 vars, 92,766 obs)
+
+. 
+. * --- variables ---
+. egen locnum  = group(locid)
+
+. egen distnum = group(ubigeo1 ubigeo2 ubigeo3)
+
+. gen limasur3 = inlist(ubigeo3, "SAN JUAN DE MIRAFLORES", "LURÍN", "PACHACÁMAC") &
+>  limametro == 1
+
+. 
+. * within-mesa round differences (diff-in-diff across rounds)
+. gen dturnout   = turnout2   - turnout1
+
+. gen dblanknull = blanknull2 - blanknull1
+(49 missing values generated)
+
+. gen dsh8       = sh82  - sh81
+(108 missing values generated)
+
+. gen dsh10      = sh102 - sh101
+(108 missing values generated)
+
+. 
+. label var turnout1   "Turnout R1 (%)"
+
+. label var blanknull1 "Blank+null R1 (% emitted)"
+
+. save "$out/mesas_analysis.dta", replace
+(file /Users/u90397/Dropbox/research projects/Claude/Elecciones
+    2026/outputs/mesas_analysis.dta not found)
+file /Users/u90397/Dropbox/research projects/Claude/Elecciones
+    2026/outputs/mesas_analysis.dta saved
+
+. 
+. * --- results collector ---
+. tempname H
+
+. postfile `H' str12 spec str12 treat str12 outcome double(b se p N cmean) using "$
+> out/results_post.dta", replace
+(file /Users/u90397/Dropbox/research projects/Claude/Elecciones
+    2026/outputs/results_post.dta not found)
+
+. 
+. local outcomes electores1 emitidos1 turnout1 blanknull1 sh81 sh101 sh351 sh161 sh
+> 141 ///
+>                turnout2 blanknull2 sh82 sh102 dturnout dblanknull dsh8 dsh10
+
+. 
+. * spec definitions:  name | treatvar | sample condition | FE (0/1)
+. * LATE proxy specs exclude next-day mesas; NEXTDAY specs exclude late-proxy mesas
+. capture program drop runspec
+
+. program define runspec
+  1.     args H spec treat cond fe
+  2.     foreach y of global YLIST {
+  3.         quietly summarize `y' if `treat' == 0 & (`cond'), meanonly
+  4.         local cm = r(mean)
+  5.         if (`fe' == 0) {
+  6.             capture quietly reg `y' `treat' if (`cond'), vce(cluster locnum)
+  7.         }
+  8.         else {
+  9.             capture quietly reghdfe `y' `treat' if (`cond'), absorb(distnum) v
+> ce(cluster locnum)
+ 10.         }
+ 11.         if (_rc == 0) {
+ 12.             local b  = _b[`treat']
+ 13.             local se = _se[`treat']
+ 14.             local p  = 2 * ttail(e(df_r), abs(`b'/`se'))
+ 15.             post `H' ("`spec'") ("`treat'") ("`y'") (`b') (`se') (`p') (e(N)) 
+> (`cm')
+ 16.         }
+ 17.     }
+ 18. end
+
+. 
+. global YLIST `outcomes'
+
+. 
+. * ---- LATE (proxy) ----
+. runspec `H' L1_nat   late6 "domestic == 1 & nextday == 0" 0
+
+. runspec `H' L2_lima  late6 "limametro == 1 & nextday == 0" 0
+
+. runspec `H' L3_limaFE late6 "limametro == 1 & nextday == 0" 1
+
+. 
+. * ---- LATE robustness: stricter 12h proxy ----
+. runspec `H' R2_lima  late12 "limametro == 1 & nextday == 0" 0
+
+. runspec `H' R3_limaFE late12 "limametro == 1 & nextday == 0" 1
+
+. 
+. * ---- NEXT DAY ----
+. runspec `H' N1_nat    nextday "domestic == 1 & late6 == 0" 0
+
+. runspec `H' N2_lima   nextday "limametro == 1 & late6 == 0" 0
+
+. runspec `H' N3_limaFE nextday "limametro == 1 & late6 == 0" 1
+
+. runspec `H' N4_sur3   nextday "limasur3 == 1 & late6 == 0" 0
+
+. 
+. postclose `H'
+
+. 
+. use "$out/results_post.dta", clear
+
+. export delimited "$out/results.csv", replace
+(file /Users/u90397/Dropbox/research projects/Claude/Elecciones
+    2026/outputs/results.csv not found)
+file /Users/u90397/Dropbox/research projects/Claude/Elecciones 2026/outputs/results
+> .csv saved
+
+. display "DONE - results exported"
+DONE - results exported
+
+. 
+end of do-file
